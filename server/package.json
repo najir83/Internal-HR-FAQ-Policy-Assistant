@@ -1,0 +1,33 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/najir83/Internal-HR-FAQ-Policy-Assistant.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/najir83/Internal-HR-FAQ-Policy-Assistant/issues"
+  },
+  "homepage": "https://github.com/najir83/Internal-HR-FAQ-Policy-Assistant#readme",
+  "dependencies": {
+    "@google/genai": "^2.21.0",
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/textsplitters": "^1.0.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^2.3.0",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "unified": "^11.0.5"
+  }
+}
