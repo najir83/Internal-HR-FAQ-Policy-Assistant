@@ -4,6 +4,7 @@ import {
     parseMarkdown
 } from "./parsers/markdown.parser.js";
 import { embedChunks } from "./embedding.service.js";
+import { storeChunks } from "./qdrant.service.js";
 
 export const processDocument = async (file) => {
 
@@ -20,10 +21,14 @@ export const processDocument = async (file) => {
             const chunkWithSectionMarked = chunks.map(chunk => ({
                 type: chunk.type,
                 text: `Section: ${chunk.metadata.headingPath.join(" > ")}: \n\n` + chunk.text,
-                metadata: chunk.metadata.headingPath
+                metadata: { section: chunk.metadata.headingPath.join(" > "), fileName: file.originalname }
             }));
 
-            const newChunks = embedChunks(chunkWithSectionMarked);
+            // return chunkWithSectionMarked;
+
+            const newChunks = await embedChunks(chunkWithSectionMarked);
+            // console.log(newChunks);
+            storeChunks(newChunks);
 
             return newChunks;
 

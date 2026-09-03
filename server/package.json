@@ -23,6 +23,8 @@
     "@google/genai": "^2.21.0",
     "@google/generative-ai": "^0.24.1",
     "@langchain/textsplitters": "^1.0.1",
+    "@qdrant/js-client-rest": "^1.19.0",
+    "crypto": "^1.0.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "multer": "^2.3.0",

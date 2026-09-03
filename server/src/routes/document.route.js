@@ -2,7 +2,8 @@ import express from "express";
 import multer from "multer";
 
 import {
-    uploadDocument
+    uploadDocument,
+    userQuery
 } from "../controllers/document.controller.js";
 
 const documentRouter = express.Router();
@@ -17,5 +18,7 @@ documentRouter.post(
     upload.single("file"),
     uploadDocument
 );
+
+documentRouter.post('/chat', userQuery);
 
 export default documentRouter;
