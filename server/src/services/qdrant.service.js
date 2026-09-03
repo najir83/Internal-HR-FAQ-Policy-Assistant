@@ -1,4 +1,5 @@
 import client from "../DB/Qdrant.js";
+import { embedChunks } from "./embedding.service.js";
 import { toSparseVector } from "./sparse.service.js";
 
 const COLLECTION_NAME = "documents";
@@ -52,7 +53,9 @@ export const storeChunks = async (chunks) => {
     console.log("Chunks stored successfully");
 };
 
-export const searchChunks = async (embedding, queryText, limit = 10) => {
+export const searchChunks = async (queryText, limit = 10) => {
+
+    const embedding = (await embedChunks([{ text: queryText }]))[0].embedding;
 
     const result = await client.query(COLLECTION_NAME, {
         prefetch: [

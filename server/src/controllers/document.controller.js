@@ -1,7 +1,7 @@
 import {
     processDocument
 } from "../services/document.service.js";
-import { embedChunks } from "../services/embedding.service.js";
+import { generateAnswer } from "../services/generation.service.js";
 import { searchChunks } from "../services/qdrant.service.js";
 
 export const uploadDocument = async (req, res) => {
@@ -39,19 +39,30 @@ export const userQuery = async (req, res) => {
         const { query } = req.body;
         console.log(query);
         if (!query) {
-            return res.status(400).json({ message: "Query is required" });
+            return res.status(400).json({ error: "Query is required" });
         }
 
-        const embedding = await embedChunks([{ text: query }]);
+        const results = await searchChunks(query, 3);
 
-        const results = await searchChunks(embedding[0].embedding, query, 10);
+        if (!results.points || results.points.length === 0) {
+            return res.json({
+                answer: "I don't have enough information to answer this; please contact HR.",
+                sufficientContext: false,
+                citations: []
+            });
+        }
 
-        // console.log();
-        return res.status(200).json({ results });
-    }
-    catch (e) {
+        const generated = await generateAnswer(query, results.points);
+
+        return res.json(generated);
+
+    } catch (err) {
+        console.error(err);
         return res.status(500).json({
-            message: e.message
+            answer: "Something went wrong. Please try again or contact HR.",
+            sufficientContext: false,
+            citations: [],
+            error: "internal_error"
         });
     }
 
