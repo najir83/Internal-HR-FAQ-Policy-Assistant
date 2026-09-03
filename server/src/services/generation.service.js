@@ -8,12 +8,13 @@ export const generateAnswer = async (query, chunks) => {
     const prompt = buildRagPrompt(query, chunks);
 
     const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
         config: {
             responseMimeType: "application/json"   // forces valid JSON output, no markdown fences
         }
     });
+    // console.log(response);
 
     let parsed;
     try {
@@ -26,6 +27,10 @@ export const generateAnswer = async (query, chunks) => {
             citations: []
         };
     }
+    finally {
+        return parsed;
+    }
 
-    return parsed;
+
+
 };

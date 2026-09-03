@@ -1,13 +1,13 @@
 // prompt.builder.js
 
 export function buildRagPrompt(query, chunks) {
-    const context = chunks
-        .map((c, i) =>
-            `[Chunk ${i + 1}] (Source: ${c.payload.fileName})\n${c.payload.text}`
-        )
-        .join("\n\n---\n\n");
+  const context = chunks
+    .map((c, i) =>
+      `[Chunk ${i + 1}] (Source: ${c.payload.fileName})\n${c.payload.text}`
+    )
+    .join("\n\n---\n\n");
 
-    return `You are an HR policy assistant. Answer the user's question using ONLY the information in the CONTEXT below. Do not use any outside knowledge, assumptions, or information not explicitly present in the context.
+  return `You are an HR policy assistant. Answer the user's question using ONLY the information in the CONTEXT below. Do not use any outside knowledge, assumptions, or information not explicitly present in the context.
 
 CONTEXT:
 ${context}
@@ -29,9 +29,9 @@ Respond ONLY with valid JSON matching this exact schema, no markdown fences, no 
   "sufficientContext": boolean,  // true only if the context fully supports the answer
   "citations": [
     {
-      "fileName": string,
-      "chunkIndex": number,       // the [Chunk N] number used
-      "quote": string             // short (<20 words) exact snippet from that chunk supporting the answer
+      "fileName": string,       // exact fileName from the source chunk, e.g. "benefits-policy.md"
+      "section": string,        // exact section path from the source chunk, e.g. "Benefits Policy > 2. Health coverage tiers"
+      "quote": string           // short (<20 words) exact snippet from that chunk supporting the answer
     }
   ]
 }`;

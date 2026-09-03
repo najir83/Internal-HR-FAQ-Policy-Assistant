@@ -1,10 +1,12 @@
 import path from "path";
+import fs from "fs/promises";
 import { createChunks } from "./chunkers/chunk.markdown-block.js";
 import {
     parseMarkdown
 } from "./parsers/markdown.parser.js";
 import { embedChunks } from "./embedding.service.js";
 import { storeChunks } from "./qdrant.service.js";
+import { createTextChunks } from "./chunkers/chunk.text.js";
 
 export const processDocument = async (file) => {
 
@@ -34,9 +36,20 @@ export const processDocument = async (file) => {
 
         }
 
-        case ".txt":
-            // later
-            throw new Error("TXT parser not implemented");
+        case ".txt": {
+            const rawText = await fs.readFile(file.path, "utf-8");
+            const chunks = createTextChunks(rawText);
+
+            const chunkWithSectionMarked = chunks.map(chunk => ({
+                type: chunk.type,
+                text: `Section: ${chunk.section}: \n\n` + chunk.text,
+                metadata: { section: chunk.section, fileName: file.originalname }
+            }));
+            // console.log(chunkWithSectionMarked);
+            const newChunks = await embedChunks(chunkWithSectionMarked);
+            storeChunks(newChunks);
+            return newChunks;
+        }
 
         case ".pdf":
             // later

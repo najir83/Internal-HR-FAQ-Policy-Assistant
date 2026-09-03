@@ -53,8 +53,8 @@ export const userQuery = async (req, res) => {
         }
 
         const generated = await generateAnswer(query, results.points);
-
-        return res.json(generated);
+        // console.log(generated);
+        return res.status(200).json(generated);
 
     } catch (err) {
         console.error(err);
