@@ -30,32 +30,141 @@ The system is a **retrieval-augmented generation (RAG) HR policy assistant**. It
 ## 2. Chunking & Retrieval
 
 ### File-aware parsing and chunking
+Different file types have different structures, so the pipeline uses file-aware parsing and chunking instead of one generic splitter. Each format is handled separately to preserve structure and improve retrieval.
 
-The ingestion pipeline is intentionally **format-aware** rather than treating every file as a plain text blob.
+#### Markdown Chunking
+The goal is to **keep tables as complete chunks** while splitting normal text independently. This ensures table-based questions can retrieve the full table instead of isolated rows.
 
-**Markdown:** Parsed with `remark-parse` + `remark-gfm` into headings, paragraphs, lists, and tables. Heading paths are preserved, and each paragraph/list is split with a `RecursiveCharacterTextSplitter` using **700 characters with 70-character overlap**. Tables are kept as a dedicated chunk and include nearby paragraph context so a row can still be interpreted correctly during retrieval.
+The Markdown pipeline follows three steps:
 
-**TXT:** Split incrementally at approximately **1000 characters with 100-character overlap** while recording line ranges such as `Lines 40-65`.
+1. **Parse:** Convert Markdown into an Abstruct Syntax Tree (AST) using `remark-parse` and `remark-gfm`.
 
-**PDF:** Extracted page-by-page, then split with the same **700/70** text splitter. Each chunk retains its source filename and page-based section label.
+```json
+{
+    "type": "root",
+    "children": [
+        {
+            "type": "heading",
+            "depth": 1,
+            "children": [
+                {
+                    "type": "text",
+                    "value": "Benefits Policy",
+                    "position": {.....}
+            ],
+            "position": {....}
+        },
+        {
+            "type": "table",
+            "align": [.... ],
+            "children": [.....],
+            "position": {....}
+        }
+    ]
+}
+```
+2. **Normalize:** Extract headings, paragraphs, and tables into a simplified structure.
+```json
+[
+    {
+        "type": "heading",
+        "depth": 2,
+        "text": "2. Health coverage tiers",
+        "position": {.....}
+    },
+    {
+        "type": "paragraph",
+        "text": "Employees are enrolled in one h...",
+        "position": {....}
+    },
+    {
+        "type": "table",
+        "headers": [....],
+        "rows": [[....]],
+        "position": { ....}
+    },
+    {
+        "type": "paragraph",
+        "text": "Network hospital cashless access...",
+        "position": {.....}
+    }
+]
 
-### Metadata stored with each chunk
 
-Each Qdrant point stores the chunk text plus metadata such as:
+````
+3. **Chunk:**
+   - **Tables:** Kept as a single chunk with heading and surrounding context.
+   - **Text:** Split using `RecursiveCharacterTextSplitter` with **700-character chunks and 70-character overlap**.
+   - **Metadata:** Store section and filename with each chunk.
+```json
+[
+    {
+        "type": "text",
+        "text": "....",
+        "metadata": {
+            "section": "Benefits Policy",
+            "fileName": "benefits-policy.md"
+        }
+    },
+    {
+        "type": "table",
+        "text": "....",
+        "metadata": {
+            "section": "Benefits Policy > 2. Health coverage tiers",
+            "fileName": "benefits-policy.md"
+        }
+    }
+]
 
-- `fileName` — exact source file name for traceability.
-- `section` — heading path, page reference, or line range depending on source type.
-- `type` / `blockType` — distinguishes text, list, and table-derived content.
-- `position` — original Markdown source line range where available.
+```
+#### Text File Chunking
 
-This metadata is important because retrieval is not only about finding text; it also enables **auditable citations back to the original policy source**.
+After extracting the text, we incrementally split it into **700-character** chunks with a **70-character** overlap, while recording the corresponding line ranges, such as `Lines 40–65`.
+
+Text File Chunks:
+```json
+[
+  {
+      "type": "text",
+      "text": "....",
+      "metadata": {
+          "section": "Lines 40 - 65",
+          "fileName": "benefits-policy.txt"
+      }
+  }
+]
+```
+#### PDF File Chunking
+
+Extracted page-by-page, then split with the same **700/70** text with the help of `RecursiveCharacterTextSplitter`. Each chunk retains its source filename and page-based section label.
+
+PDF File Chunks:
+```json
+[
+  {
+      "type": "text",
+      "text": "....",
+      "metadata": {
+          "section": "Page Number 1",
+          "fileName": "leave-policy.pdf"
+      }
+  }
+]
+```
+### Chunk Embedding and Storage
+
+Before storing the chunks into database, system creates two vector, 
+1. A **dense embedding** using `gemini-embedding-2`, capturing semantic similarity.
+2. A **sparse vector** built from normalized, hashed tokens and term frequency, preserving lexical matches for exact policy language and terms.
+
+The chunks and their vectors are then stored in **Qdrant** for retrieval.
 
 ### Hybrid retrieval
 
 For a user query, the system creates both:
 
-1. A **dense embedding** using `gemini-embedding-2`, capturing semantic similarity.
-2. A **sparse vector** built from normalized, hashed tokens and term frequency, preserving lexical matches for exact policy language and terms.
+1. **dense embedding**.
+2. **sparse vector**.
 
 Qdrant retrieves up to **20 candidates from each signal**, then combines the rankings using **Reciprocal Rank Fusion (RRF)**. The final result set is limited to **6 chunks**, and results below a **0.3 fused score threshold** are removed.
 
@@ -179,6 +288,20 @@ Markdown contains headings and tables that carry meaning beyond raw text. Treati
 **Chosen:** preserve complete Markdown tables with surrounding context.
 
 Although large tables create bigger chunks, keeping the full table with nearby paragraph context improves accuracy for aggregation and row-dependent questions where the complete table is required.
+
+**Why nearby paragraph is required?**
+
+Let's consider the below table
+
+| Leave Type | Eligibility | Annual Limit | Carry Forward |
+| --- | --- | ---: | ---: |
+| Casual Leave | All employees | 12 days | 3 days* |
+| Sick Leave | All employees | 10 days | 5 days |
+| Earned Leave | Employees after probation | 18 days | 10 days* |
+
+\* Carry-forward limits apply after **6 months of continuous service**.
+
+Now, to answer a Casual Leave-related question, we require the table and its **nearby context as well**.
 
 ### Hybrid retrieval vs. dense-only retrieval
 **Rejected:** dense-only search.
