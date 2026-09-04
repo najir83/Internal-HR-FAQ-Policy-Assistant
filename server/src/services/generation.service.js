@@ -1,4 +1,4 @@
-// generation.service.js
+//  /src/services/generation.service.js
 import { GoogleGenAI } from "@google/genai";
 import { buildRagPrompt } from "../builders/prompt.builder.js";
 

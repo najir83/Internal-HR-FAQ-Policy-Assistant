@@ -1,3 +1,5 @@
+//  /src/services/qdrant.service.js
+
 import client from "../DB/Qdrant.js";
 import { embedChunks } from "./embedding.service.js";
 import { toSparseVector } from "./sparse.service.js";
@@ -57,7 +59,7 @@ export const searchChunks = async (queryText, limit = 10) => {
 
     const embedding = (await embedChunks([{ text: queryText }]))[0].embedding;
 
-    const result = await client.query(COLLECTION_NAME, {
+    const results = await client.query(COLLECTION_NAME, {
         prefetch: [
             { query: embedding, using: "dense", limit: 20 },
             { query: toSparseVector(queryText), using: "sparse", limit: 20 }
@@ -66,13 +68,11 @@ export const searchChunks = async (queryText, limit = 10) => {
         limit,
         with_payload: true
     });
+    if (results.points) {
 
-    return result;
-    // const filteredResult = result.points.filter(res => res.score > 0.69);
-    // for (const result of results) {
-    //     if (result.score > 0.69) {
-    //         filteredResult.push(result);
-    //     }
-    // }
-    // return filteredResult;
+        const filteredResult = results.points.filter(res => res.score > 0.3);
+        return filteredResult;
+    }
+    return [];
+
 };

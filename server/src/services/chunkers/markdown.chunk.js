@@ -1,3 +1,5 @@
+//  /src/services/chunkers/markdown.chunk.js
+
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 
@@ -69,7 +71,7 @@ const getNextWords = (blocks, index) => {
     return words.slice(0, 20).join(" ");
 };
 
-export const createChunks = async (blocks) => {
+export const createMarkdownChunks = async (blocks) => {
 
     const finalChunks = [];
 

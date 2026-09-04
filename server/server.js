@@ -1,8 +1,12 @@
+// server.js
 import { configDotenv } from 'dotenv';
 configDotenv();
 
+
 import app from './src/app.js';
 import { initQdrant } from './src/services/qdrant.service.js';
+
+
 
 
 

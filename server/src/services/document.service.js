@@ -1,14 +1,17 @@
+//  /src/services/document.service.js
+
 import path from "path";
 import fs from "fs/promises";
-import { createChunks } from "./chunkers/chunk.markdown-block.js";
+import { createMarkdownChunks } from "./chunkers/markdown.chunk.js";
 import {
     parseMarkdown
 } from "./parsers/markdown.parser.js";
 import { embedChunks } from "./embedding.service.js";
 import { storeChunks } from "./qdrant.service.js";
-import { createTextChunks } from "./chunkers/chunk.text.js";
+import { createTextChunks } from "./chunkers/text.chunk.js";
 import { parsePdf } from "./parsers/pdf.parser.js";
-import { createPdfChunks } from "./chunkers/chunk.pdf.js";
+import { createPdfChunks } from "./chunkers/pdf.chunk.js";
+
 
 export const processDocument = async (file) => {
 
@@ -20,7 +23,7 @@ export const processDocument = async (file) => {
         case ".md": {
             const blocks = await parseMarkdown(file.path);
 
-            const chunks = await createChunks(blocks);
+            const chunks = await createMarkdownChunks(blocks);
 
             const chunkWithSectionMarked = chunks.map(chunk => ({
                 type: chunk.type,

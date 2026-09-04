@@ -1,3 +1,5 @@
+//  /src/services/embedding.service.js
+
 import { GoogleGenAI } from "@google/genai";
 
 

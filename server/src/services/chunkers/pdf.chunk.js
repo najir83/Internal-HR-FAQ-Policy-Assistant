@@ -1,3 +1,4 @@
+//  /src/services/chunkers/pdf.chunk.js
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 
@@ -18,7 +19,7 @@ export const createPdfChunks = async (pages, fileName) => {
                 text,
                 type: "text",
                 metadata: {
-                    pageNumber: i,
+                    section: `Page Number ${i}`,
                     fileName
                 }
             });

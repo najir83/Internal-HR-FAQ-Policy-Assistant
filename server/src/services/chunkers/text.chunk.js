@@ -1,7 +1,7 @@
-// chunkers/chunk.text.js
+//  /src/services/chunkers/text.chunk.js
 
-const MAX_CHUNK_CHARS = 1000;
-const OVERLAP_CHARS = 100;
+const MAX_CHUNK_CHARS = 700;
+const OVERLAP_CHARS = 70;
 
 export const createTextChunks = (rawText) => {
     const lines = rawText.split("\n");

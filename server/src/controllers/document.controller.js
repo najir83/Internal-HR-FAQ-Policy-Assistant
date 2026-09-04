@@ -1,3 +1,5 @@
+//  /src/controllers/document.controller.js
+
 import {
     processDocument
 } from "../services/document.service.js";
@@ -36,14 +38,14 @@ export const uploadDocument = async (req, res) => {
 export const userQuery = async (req, res) => {
     try {
         const { query } = req.body;
-        console.log(query);
+        // console.log(query);
         if (!query) {
             return res.status(400).json({ error: "Query is required" });
         }
 
-        const results = await searchChunks(query, 3);
+        const results = await searchChunks(query, 6);
 
-        if (!results.points || results.points.length === 0) {
+        if (results.length === 0) {
             return res.json({
                 answer: "I don't have enough information to answer this; please contact HR.",
                 sufficientContext: false,
@@ -51,7 +53,7 @@ export const userQuery = async (req, res) => {
             });
         }
 
-        const generated = await generateAnswer(query, results.points);
+        const generated = await generateAnswer(query, results);
         // console.log(generated);
         return res.status(200).json(generated);
 
