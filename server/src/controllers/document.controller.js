@@ -19,8 +19,7 @@ export const uploadDocument = async (req, res) => {
 
 
         return res.status(200).json({
-            message: "Document processed successfully",
-            chunks
+            message: "Document stored successfully",
         });
 
     } catch (error) {

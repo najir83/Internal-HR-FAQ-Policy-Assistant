@@ -1,7 +1,7 @@
 import client from "../DB/Qdrant.js";
 import { embedChunks } from "./embedding.service.js";
 import { toSparseVector } from "./sparse.service.js";
-
+import { randomUUID } from "crypto"
 const COLLECTION_NAME = "documents";
 
 
@@ -30,7 +30,7 @@ export const storeChunks = async (chunks) => {
 
     const points = chunks.map((chunk, index) => ({
 
-        id: index + 1,
+        id: randomUUID(),
 
         vector: {
             dense: chunk.embedding,

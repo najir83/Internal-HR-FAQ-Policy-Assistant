@@ -7,7 +7,6 @@ export const embedChunks = async (chunks) => {
     });
 
     const records = [];
-
     for (const chunk of chunks) {
         const response = await ai.models.embedContent({
             model: "gemini-embedding-2",

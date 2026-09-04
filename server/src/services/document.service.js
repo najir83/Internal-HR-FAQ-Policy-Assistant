@@ -7,6 +7,8 @@ import {
 import { embedChunks } from "./embedding.service.js";
 import { storeChunks } from "./qdrant.service.js";
 import { createTextChunks } from "./chunkers/chunk.text.js";
+import { parsePdf } from "./parsers/pdf.parser.js";
+import { createPdfChunks } from "./chunkers/chunk.pdf.js";
 
 export const processDocument = async (file) => {
 
@@ -26,13 +28,10 @@ export const processDocument = async (file) => {
                 metadata: { section: chunk.metadata.headingPath.join(" > "), fileName: file.originalname }
             }));
 
-            // return chunkWithSectionMarked;
+            const embChunks = await embedChunks(chunkWithSectionMarked);
+            storeChunks(embChunks);
 
-            const newChunks = await embedChunks(chunkWithSectionMarked);
-            // console.log(newChunks);
-            storeChunks(newChunks);
-
-            return newChunks;
+            return embChunks;
 
         }
 
@@ -42,18 +41,23 @@ export const processDocument = async (file) => {
 
             const chunkWithSectionMarked = chunks.map(chunk => ({
                 type: chunk.type,
-                text: `Section: ${chunk.section}: \n\n` + chunk.text,
+                text: chunk.text,
                 metadata: { section: chunk.section, fileName: file.originalname }
             }));
             // console.log(chunkWithSectionMarked);
-            const newChunks = await embedChunks(chunkWithSectionMarked);
-            storeChunks(newChunks);
-            return newChunks;
+            const embChunks = await embedChunks(chunkWithSectionMarked);
+            storeChunks(embChunks);
+            return embChunks;
         }
 
-        case ".pdf":
-            // later
-            throw new Error("PDF parser not implemented");
+        case ".pdf": {
+            const results = await parsePdf(file.path); // parsePdf should return an array directly
+            const chunks = await createPdfChunks(results.pages, file.originalname);
+
+            const embChunks = await embedChunks(chunks);
+            storeChunks(embChunks);
+            return embChunks;
+        }
 
         default:
             throw new Error(
