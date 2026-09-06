@@ -87,7 +87,6 @@ All environment variables are required by the backend.
 | `QDRANT_API_KEY` | Qdrant Cloud API key |
 | `QDRANT_CLUSTER_ENDPOINT` | Qdrant Cloud cluster endpoint |
 
-**Never commit the `.env` file or API keys to the repository.**
 
 ---
 

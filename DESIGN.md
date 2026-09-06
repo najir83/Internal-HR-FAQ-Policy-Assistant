@@ -37,7 +37,7 @@ The goal is to **keep tables as complete chunks** while splitting normal text in
 
 The Markdown pipeline follows three steps:
 
-1. **Parse:** Convert Markdown into an Abstruct Syntax Tree (AST) using `remark-parse` and `remark-gfm`.
+1. **Parse:** Convert Markdown into an Abstract Syntax Tree (AST) using `remark-parse` and `remark-gfm`.
 
 ```json
 {
@@ -51,6 +51,7 @@ The Markdown pipeline follows three steps:
                     "type": "text",
                     "value": "Benefits Policy",
                     "position": {.....}
+                }    
             ],
             "position": {....}
         },
