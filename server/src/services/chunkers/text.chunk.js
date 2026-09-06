@@ -21,7 +21,6 @@ export const createTextChunks = (rawText) => {
                 section: `Lines ${startLine}-${currentLine}`
             });
 
-            // start next chunk with a small overlap from the end of this one
             const overlapText = currentText.slice(-OVERLAP_CHARS);
             currentText = overlapText;
             startLine = currentLine;
@@ -29,7 +28,6 @@ export const createTextChunks = (rawText) => {
 
         currentLine++;
     }
-    // push whatever's left
     if (currentText.trim()) {
         chunks.push({
             type: "text",

@@ -111,8 +111,6 @@ export const parseMarkdown = async (filePath) => {
         .use(remarkParse)
         .use(remarkGfm)
         .parse(markdown);
-    // return { tree, ntree: normalizeBlocks(tree) };
-    // // console.log(tree['children']);
 
     return normalizeBlocks(tree);
 };

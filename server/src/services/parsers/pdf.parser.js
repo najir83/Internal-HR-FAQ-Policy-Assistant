@@ -29,8 +29,8 @@ export const parsePdf = async (filePath) => {
     return {
         numPages: data.numpages,
         info: data.info,
-        fullText: data.text,   // still available if you need it
-        pages                  // your array of { pageNumber, text }
+        fullText: data.text,
+        pages
     };
 
 };

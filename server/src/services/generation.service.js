@@ -11,7 +11,7 @@ export const generateAnswer = async (query, chunks) => {
         model: "gemini-3.6-flash",
         contents: prompt,
         config: {
-            responseMimeType: "application/json"   // forces valid JSON output, no markdown fences
+            responseMimeType: "application/json"
         }
     });
     // console.log(response);
@@ -20,7 +20,6 @@ export const generateAnswer = async (query, chunks) => {
     try {
         parsed = JSON.parse(response.text);
     } catch (err) {
-        // model failed to produce valid JSON — fail safe, don't crash or hallucinate
         return {
             answer: "Something went wrong generating a response. Please try again or contact HR.",
             sufficientContext: false,

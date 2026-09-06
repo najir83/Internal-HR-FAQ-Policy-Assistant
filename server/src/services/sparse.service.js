@@ -25,6 +25,6 @@ export function toSparseVector(text) {
 
     return {
         indices: Object.keys(counts).map(Number),
-        values: Object.values(counts).map(v => v) // raw term frequency; could apply log/IDF later
+        values: Object.values(counts).map(v => v)
     };
 }

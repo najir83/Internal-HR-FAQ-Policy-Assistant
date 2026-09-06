@@ -54,7 +54,7 @@ export const processDocument = async (file) => {
         }
 
         case ".pdf": {
-            const results = await parsePdf(file.path); // parsePdf should return an array directly
+            const results = await parsePdf(file.path);
             const chunks = await createPdfChunks(results.pages, file.originalname);
 
             const embChunks = await embedChunks(chunks);

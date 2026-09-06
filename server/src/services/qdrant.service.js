@@ -19,7 +19,7 @@ export const initQdrant = async () => {
                 dense: { size: 3072, distance: "Cosine" }
             },
             sparse_vectors: {
-                sparse: {}   // no size needed, sparse vectors are variable-length
+                sparse: {}
             }
         });
         console.log("Collection created");
@@ -64,7 +64,7 @@ export const searchChunks = async (queryText, limit = 10) => {
             { query: embedding, using: "dense", limit: 20 },
             { query: toSparseVector(queryText), using: "sparse", limit: 20 }
         ],
-        query: { fusion: "rrf" },   // Reciprocal Rank Fusion combines both rankings
+        query: { fusion: "rrf" },
         limit,
         with_payload: true
     });
