@@ -5,9 +5,9 @@
 The system is a **retrieval-augmented generation (RAG) HR policy assistant**. Its core design goal is simple: **answers must come from indexed company documents, with explicit source citations, and weak retrieval must fail safely instead of encouraging the model to guess.**
 
 ### High-level flow
-![Document Upload Flow](DocumentUploadFlowChart.png)
+![Document Upload Flow](DocumentUpload.jpeg)
 
-![User Query Processing](UserQueryFlowChart.png)
+![User Query Processing](UserQuery.jpeg)
 
 ### Components
 
